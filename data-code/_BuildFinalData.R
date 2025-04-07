@@ -81,12 +81,20 @@ final.data <- final.data %>%
   left_join(benchmark.final,
             by = c("ssa", "year"))
 
-
-# calculate relevant benchmark rate based on star rating
+# Ensure both have numeric SSA
+benchmark.final <- benchmark.final %>%
+  mutate(ssa = as.double(ssa))
 
 final.data <- final.data %>%
+  mutate(ssa = as.double(ssa)) %>%
   left_join(benchmark.final, by = c("ssa", "year"))
 
+# Check if join worked
+if (!"risk_ab" %in% colnames(final.data)) {
+  stop("Join failed or benchmark columns not present.")
+}
+
+# Calculate ma_rate
 final.data <- final.data %>% ungroup() %>%
   mutate(ma_rate =
            case_when(
@@ -104,57 +112,42 @@ final.data <- final.data %>% ungroup() %>%
              TRUE ~ NA_real_
            ))
 
-# final premium and bid variables
-
+# Final premium and bid variables
 final.data <- final.data %>%
   left_join(risk.rebate.final %>%
               select(-contract_name, -plan_type),
             by = c("contractid", "planid", "year"))
 
-final.data <- final.data %>%
-  mutate(basic_premium =
-           case_when(
-             rebate_partc > 0 ~ 0,
-             partd == "No" & !is.na(premium) & is.na(premium_partc) ~ premium,
-             TRUE ~ premium_partc
-           ),
-         bid =
-           case_when(
-             rebate_partc == 0 & basic_premium > 0 ~ (payment_partc + basic_premium) / riskscore_partc,
-             rebate_partc > 0 | basic_premium == 0 ~ payment_partc / riskscore_partc,
-             TRUE ~ NA_real_
-           ))
+# Check that rebate_partc exists
+if (!"rebate_partc" %in% names(final.data)) {
+  stop("Column 'rebate_partc' not found. Check if the join worked properly.")
+}
 
-
+# Now calculate basic_premium and bid
 final.data <- final.data %>%
-  mutate(basic_premium =
-           case_when(
-             rebate_partc > 0 ~ 0,
-             partd == "No" & !is.na(premium) & is.na(premium_partc) ~ premium,
-             TRUE ~ premium_partc
-           ),
-         bid =
-           case_when(
-             rebate_partc == 0 & basic_premium > 0 ~ (payment_partc + basic_premium) / riskscore_partc,
-             rebate_partc > 0 | basic_premium == 0 ~ payment_partc / riskscore_partc,
-             TRUE ~ NA_real_
-           ))
+  mutate(
+    basic_premium = case_when(
+      rebate_partc > 0 ~ 0,
+      partd == "No" & !is.na(premium) & is.na(premium_partc) ~ premium,
+      TRUE ~ premium_partc
+    ),
+    bid = case_when(
+      rebate_partc == 0 & basic_premium > 0 ~ (payment_partc + basic_premium) / riskscore_partc,
+      rebate_partc > 0 | basic_premium == 0 ~ payment_partc / riskscore_partc,
+      TRUE ~ NA_real_
+    )
+  )
 
-# incorporate ffs cost data by ssa
+# Incorporate FFS cost data by SSA
 final.data <- final.data %>%
-  left_join( ffs.costs.final %>%
-               select(-state), 
-             by=c("ssa","year")) %>%
+  left_join(ffs.costs.final %>% select(-state), by = c("ssa", "year")) %>%
   mutate(avg_ffscost = case_when(
-    parta_enroll==0 & partb_enroll==0 ~ 0,
-    parta_enroll==0 & partb_enroll>0 ~ partb_reimb/partb_enroll,
-    parta_enroll>0 & partb_enroll==0 ~ parta_reimb/parta_enroll,
-    parta_enroll>0 & partb_enroll>0 ~ (parta_reimb/parta_enroll) + (partb_reimb/partb_enroll),
+    parta_enroll == 0 & partb_enroll == 0 ~ 0,
+    parta_enroll == 0 & partb_enroll > 0 ~ partb_reimb / partb_enroll,
+    parta_enroll > 0 & partb_enroll == 0 ~ parta_reimb / parta_enroll,
+    parta_enroll > 0 & partb_enroll > 0 ~ (parta_reimb / parta_enroll) + (partb_reimb / partb_enroll),
     TRUE ~ NA_real_
   ))
 
-# save final dataset
-write_rds(final.data,"data/output/final_ma_data.rds")
-
-
-
+# Save final dataset
+write_rds(final.data, "C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/final_ma_data.rds")
