@@ -8,7 +8,7 @@ pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table
 
 for (y in 2007:2015) {
   ## Basic contract/plan information
-  ma.path=paste0("data/input/monthly-ma-and-pdp-enrollment-by-cpsc/CPSC_Contract_Info_",y,"_01.csv")
+  ma.path=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/monthly-ma-and-pdp-enrollment-by-cpsc/CPSC_Contract_Info_",y,"_01.csv")
   contract.info=read_csv(ma.path,
                          skip=1,
                          col_names = c("contractid","planid","org_type","plan_type",
@@ -38,7 +38,7 @@ for (y in 2007:2015) {
     select(-id_count)
     
     ## Enrollments per plan
-  ma.path=paste0("data/input/monthly-ma-and-pdp-enrollment-by-cpsc/CPSC_Enrollment_Info_",y,"_01.csv")
+  ma.path=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/monthly-ma-and-pdp-enrollment-by-cpsc/CPSC_Enrollment_Info_",y,"_01.csv")
   enroll.info=read_csv(ma.path,
                        skip=1,
                        col_names = c("contractid","planid","ssa","fips","state","county","enrollment"),
@@ -79,13 +79,13 @@ for (y in 2007:2015) {
     arrange(contractid, planid, fips) %>%
     rename(avg_enrollment=enrollment)
   
-  write_rds(plan.year,paste0("data/output/ma_data_",y,".rds"))
+  write_rds(plan.year,paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/ma_data_",y,".rds"))
 }
 
-full.ma.data <- read_rds("data/output/ma_data_2007.rds")
+full.ma.data <- read_rds("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/ma_data_2007.rds")
 for (y in 2008:2015) {
-  full.ma.data <- rbind(full.ma.data,read_rds(paste0("data/output/ma_data_",y,".rds")))
+  full.ma.data <- rbind(full.ma.data,read_rds(paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/ma_data_",y,".rds")))
 }
 
-write_rds(full.ma.data,"data/output/full_ma_data.rds")
+write_rds(full.ma.data,"C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/full_ma_data.rds")
 sapply(paste0("ma_data_", 2007:2015, ".rds"), unlink)

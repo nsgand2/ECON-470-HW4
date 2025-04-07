@@ -3,15 +3,15 @@
 ##############################################################################
 
 ## Assign yearly file paths
-ffs.path.2007=paste0("data/input/ffs-costs/Aged07.csv")
-ffs.path.2008=paste0("data/input/ffs-costs/AGED08.csv")
-ffs.path.2009=paste0("data/input/ffs-costs/aged09.csv")
-ffs.path.2010=paste0("data/input/ffs-costs/aged10.csv")
-ffs.path.2011=paste0("data/input/ffs-costs/aged11.csv")
-ffs.path.2012=paste0("data/input/ffs-costs/aged12.csv")
-ffs.path.2013=paste0("data/input/ffs-costs/aged13.csv")
-ffs.path.2014=paste0("data/input/ffs-costs/aged14.csv")
-ffs.path.2015=paste0("data/input/ffs-costs/FFS15.xlsx")
+ffs.path.2007=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/Aged07.csv")
+ffs.path.2008=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/AGED08.csv")
+ffs.path.2009=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/aged09.csv")
+ffs.path.2010=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/aged10.csv")
+ffs.path.2011=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/aged11.csv")
+ffs.path.2012=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/aged12.csv")
+ffs.path.2013=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/aged13.csv")
+ffs.path.2014=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/aged14.csv")
+ffs.path.2015=paste0("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/input/ffs-costs/FFS15.xlsx")
 
 drops=array(dim=c(9,2))
 drops[,1]=c(2007:2015)
@@ -111,4 +111,4 @@ ffs.costs.final=rbind(ffs.costs.2007, ffs.costs.2008, ffs.costs.2009,
                       ffs.costs.2010, ffs.costs.2011, ffs.costs.2012,
                       ffs.costs.2013, ffs.costs.2014, ffs.costs.2015)
 
-write_rds(ffs.costs.final,"data/output/ffs_costs.rds")
+write_rds(ffs.costs.final,"C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/ffs_costs.rds")
