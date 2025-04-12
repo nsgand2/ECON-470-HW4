@@ -1,0 +1,156 @@
+---
+title: "Homework 4"
+author: "Nikhita Gandhe"
+date: "04/07/2025"
+format: pdf
+---
+
+
+Please find the link to my GitHub repository here: https://github.com/nsgand2/ECON-470-HW4.git  
+
+# Question 1 
+Remove all SNPs, 800-series plans, and prescription drug only plans (i.e., plans that do not offer Part C benefits). Provide a box and whisker plot showing the distribution of plan counts by county over time. Do you think that the number of plans is sufficient, too few, or too many?
+
+```{r question1-boxplot, echo=FALSE, message=FALSE, warning=FALSE}
+
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata)
+
+# question 1 
+full_df <- read_rds("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/final_ma_data.rds")
+
+table(full_df$plan_type)
+table(full_df$org_type)
+
+q1 <- full_df %>%
+    filter(plan_type == c("HMO/HMOPOS","Local PPO", "MSA", "MSA Demo", "PSO (Federal Waiver of State License)", "PSO (State License)")) %>%
+    group_by(year, county) %>%
+    summarise(total_enrollment = n())
+
+ggplot(q1, aes(x = as.factor(year), y = total_enrollment, fill = county)) +
+    geom_boxplot() +
+    labs(
+        title = "Box and Whisker Plot of Total Enrollment Over Time",
+        x = "Year",
+        y = "Total Enrollment",
+        fill = "County"
+    ) +
+    theme_minimal()
+
+
+```
+
+
+# Question 2
+Provide bar graphs showing the distribution of star ratings in 2010, 2012, and 2015. How has this distribution changed over time?
+
+```{r, echo=FALSE, results='asis',message=FALSE,warning=FALSE}
+
+# question 2
+
+# Load required library
+library(tidyverse)
+
+# Filter for relevant years and non-missing star ratings
+star_data <- final.data %>%
+  filter(year %in% c(2010, 2012, 2015), !is.na(Star_Rating))
+
+# Create the combined bar graph
+ggplot(star_data, aes(x = as.factor(Star_Rating), fill = as.factor(year))) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Star Ratings by Year",
+    x = "Star Rating",
+    y = "Count of Plans",
+    fill = "Year"
+  ) +
+  theme_bw()
+
+```
+
+
+# Question 3
+Plot the average benchmark payment over time from 2010 through 2015. How much has the average benchmark payment risen over the years?
+
+```{r, echo = FALSE}
+# question 3
+
+q3 <- full_df %>% 
+filter(year >= 2010 & year <= 2015) %>%
+group_by(year) %>%
+summarise(avg_rate = mean(ma_rate, na.rm = TRUE))
+
+ggplot(q3, aes(x = year, y = avg_rate)) +
+    geom_line() +
+    geom_point() +
+    labs(
+        title = "Average MA Rate Over Time",
+        x = "Year",
+        y = "Average MA Rate"
+    ) +
+    theme_minimal()
+```
+
+# Question 4
+Plot the average share of Medicare Advantage (relative to all Medicare eligibles) over time from 2010 through 2015. Has Medicare Advantage increased or decreased in popularity? How does this share correlate with benchmark payments?
+
+```{r, echo = FALSE}
+# question 4
+q4 <- full_df %>% 
+    filter(year >= 2010 & year <= 2015) %>%
+    mutate(avg_share = avg_enrollment / avg_eligibles)
+
+q4_b <- q4 %>%
+    group_by(year) %>%
+    summarise(avg = mean(avg_share, na.rm = TRUE))
+
+
+ggplot(q4_b, aes(x = year, y = avg)) +
+    geom_line() +
+    geom_point() +
+    labs(
+        title = "Average Share of Enrollment to Eligible Population Over Time",
+        x = "Year",
+        y = "Average Share"
+    ) +
+    theme_minimal()
+```
+
+# Question 5
+Calculate the running variable underlying the star rating. Provide a table showing the number of plans that are rounded up into a 3-star, 3.5-star, 4-star, 4.5-star, and 5-star rating.
+
+```{r question1-boxplot, fig.cap="Distribution of Plan Counts by County Over Time (2010–2015)", echo=FALSE, message=FALSE, warning=FALSE}
+
+# Load required libraries
+library(tidyverse)
+
+# Load the final dataset
+final.data <- read_rds("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/final_ma_data.rds")
+
+# Filter out SNPs, 800-series plans, and drug-only plans (plans that don’t offer Part C)
+cleaned_data <- final.data %>%
+  filter(
+    snp == "No",
+    !(planid >= 800 & planid < 900),
+    !is.na(partd)
+  )
+
+# Count number of plans per county per year
+final.plan.plot <- cleaned_data %>%
+  group_by(fips, year) %>%
+  summarize(plan_count = n(), .groups = "drop")
+
+# Create boxplot
+ggplot(final.plan.plot, aes(x = factor(year), y = plan_count)) +
+  geom_boxplot(fill = "lightblue", outlier.color = "red", outlier.shape = 1) +
+  labs(
+    title = "Distribution of Plan Counts by County Over Time",
+    x = "Year",
+    y = "Number of Plans"
+  ) +
+  scale_y_continuous(labels = scales::comma) +
+  theme_minimal()
+```
+
+# Question 6
+Using the RD estimator with a bandwidth of 0.125, provide an estimate of the effect of receiving a 3-star versus a 2.5 star rating on enrollments. Repeat the exercise to estimate the effects at 3.5 stars, and summarize your results in a table.
