@@ -5,40 +5,32 @@ date: "04/07/2025"
 format: pdf
 ---
 
-
 Please find the link to my GitHub repository here: https://github.com/nsgand2/ECON-470-HW4.git  
 
-# Question 1 
-Remove all SNPs, 800-series plans, and prescription drug only plans (i.e., plans that do not offer Part C benefits). Provide a box and whisker plot showing the distribution of plan counts by county over time. Do you think that the number of plans is sufficient, too few, or too many?
+# Question 1
 
-```{r question1-boxplot, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Distribution of Plan Counts by County Over Time"}
 
-if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, stringr, readxl, data.table, gdata)
+library(tidyverse)
 
-# question 1 
 full_df <- read_rds("C:/Users/Nikhita Gandhe/Documents/GitHub/ECON-470-HW4/data/output/final_ma_data.rds")
 
-table(full_df$plan_type)
-table(full_df$org_type)
+q1_plot <- full_df %>%
+  group_by(fips, year) %>%
+  select(fips, year) %>%
+  summarize(plan_count = n()) %>%
+  ggplot(aes(x = as.factor(year), y = plan_count)) +
+  geom_boxplot() +
+  labs(
+       x = "Year",
+       y = "Count of Plans"
+  ) +
+  coord_cartesian(ylim = c(0, 40)) +  # This zooms in without dropping data
+  theme_bw()
 
-q1 <- full_df %>%
-    filter(plan_type == c("HMO/HMOPOS","Local PPO", "MSA", "MSA Demo", "PSO (Federal Waiver of State License)", "PSO (State License)")) %>%
-    group_by(year, county) %>%
-    summarise(total_enrollment = n())
-
-ggplot(q1, aes(x = as.factor(year), y = total_enrollment, fill = county)) +
-    geom_boxplot() +
-    labs(
-        title = "Box and Whisker Plot of Total Enrollment Over Time",
-        x = "Year",
-        y = "Total Enrollment",
-        fill = "County"
-    ) +
-    theme_minimal()
-
-
+q1_plot
 ```
+
 
 
 # Question 2
